@@ -4,12 +4,58 @@ import (
 	"crypto/tls"
 	"log"
 	"golang.org/x/crypto/pkcs12"
-	"io"
 	"io/ioutil"
 	"encoding/pem"
+	"encoding/binary"
+	"fmt"
 )
 
+type RequestMessage struct {
+	HeaderVersion int16
+	MessageType int16
+	MessageLength int32
+	InitialTimestamp int32
+	RequestFlags int32
+}
+
+func ConvertSendBytes(message RequestMessage) []byte {
+	bytes := make([]byte, 0, 16)
+
+	byteValue := make([]byte, 2)
+	binary.BigEndian.PutUint16(byteValue, uint16(message.HeaderVersion))
+	fmt.Println("%d -> %x", message.HeaderVersion, byteValue)
+	bytes = append(bytes, byteValue[0], byteValue[1])
+
+	byteValue = make([]byte, 2)
+	binary.BigEndian.PutUint16(byteValue, uint16(message.MessageType))
+	fmt.Println("%d -> %x", message.MessageType, byteValue)
+	bytes = append(bytes, byteValue[0], byteValue[1])
+
+	byteValue = make([]byte, 4)
+	binary.BigEndian.PutUint32(byteValue, uint32(message.MessageLength)) 
+	fmt.Println("%d -> %x", message.MessageLength, byteValue)
+	bytes = append(bytes, byteValue[0], byteValue[1], byteValue[2], byteValue[3])
+
+	byteValue = make([]byte, 4)
+	binary.BigEndian.PutUint32(byteValue, uint32(message.InitialTimestamp)) 
+	fmt.Println("%d -> %x", message.InitialTimestamp, byteValue)
+	bytes = append(bytes, byteValue[0], byteValue[1], byteValue[2], byteValue[3])
+
+	byteValue = make([]byte, 4)
+	binary.BigEndian.PutUint32(byteValue, uint32(message.RequestFlags)) 
+	fmt.Println("%d -> %x", message.RequestFlags, byteValue)
+	bytes = append(bytes, byteValue[0], byteValue[1], byteValue[2], byteValue[3])
+
+	return bytes
+}
+
 func main() {
+
+	msg := RequestMessage{HeaderVersion: 1, MessageType: 2, MessageLength: 4, InitialTimestamp: 8, RequestFlags: 16}
+
+	requestMessage := ConvertSendBytes(msg)
+
+	log.Printf("cliend: send: %x", requestMessage) 
 
 	log.Println("client: start")
 	
@@ -49,12 +95,11 @@ func main() {
 	state := conn.ConnectionState()
 	log.Println("client: handshake: ", state.HandshakeComplete)
 
-	message := "Hello\n"
-	n, err := io.WriteString(conn, message)
+	n, err := conn.Write(requestMessage)
 	if err != nil {
 		log.Fatalf("client: write: %s", err)
 	}
-	log.Printf("client: wrote %q (%d bytes)", message, n)
+	log.Printf("client: wrote %q (%d bytes)", requestMessage, n)
 
 	reply := make([]byte, 256)
 	n, err = conn.Read(reply)
