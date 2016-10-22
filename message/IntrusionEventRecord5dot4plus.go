@@ -1,0 +1,50 @@
+package message
+
+type IntrusionEventRecord5dot4plus struct {
+	Header                    MessageHeader
+	RecordHeader              RecordHeader
+	BlockType                 uint32
+	BlockLength               uint32
+	DeviceID                  uint32
+	EventID                   uint32
+	EventSecond               uint32
+	EventMicrosecond          uint32
+	RuleID                    uint32
+	GeneratorID               uint32
+	RuleRevision              uint32
+	ClassificationID          uint32
+	PriorityID                uint32
+	SourceIPAddress           []uint8
+	DestinationIPAddress      []uint8
+	SourcePort                uint16
+	DestinationPort           uint16
+	ProtocolNumber            uint8
+	ImpactFlags               byte
+	Impact                    uint8
+	Blocked                   uint8
+	MPLSLabel                 uint32
+	VLANID                    uint16
+	Pad                       uint16
+	PolicyUUID                []uint8
+	UserID                    uint32
+	WebApplicationID          uint32
+	ClientApplicationID       uint32
+	ApplicationProtocolID     uint32
+	AccessControlRuleID       uint32
+	AccessControlPolicyUUID   []uint8
+	IngressInterfaceUUID      []uint8
+	EgressInterfaceUUID       []uint8
+	IngressSecurityZoneUUID   []uint8
+	EngressSecurityZoneUUID   []uint8
+	ConnectionTimestamp       uint32
+	ConnectionInstanceID      uint16
+	ConnectionCounter         uint16
+	SourceCountry             uint16
+	DestinationCountry        uint16
+	IOCNumber                 uint16
+	SecurityContext           []uint8
+	SSLCertificateFingerprint []uint8
+	SSLActualAction           uint16
+	SSLFlowStatus             uint16
+	NetworkAnalysisPolicyUUID []uint8
+}
